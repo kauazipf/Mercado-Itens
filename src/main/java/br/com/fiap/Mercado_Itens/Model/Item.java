@@ -33,6 +33,9 @@ public class Item {
     @JoinColumn(name = "personagem_id")
     private Personagem dono;
 
+    @Version // Adiciona controle de concorrência
+    private Integer version;
+
     public enum Tipo {
         ARMA, ARMADURA, POCAO, ACESSORIO
     }

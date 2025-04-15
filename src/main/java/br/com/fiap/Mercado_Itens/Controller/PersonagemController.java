@@ -71,11 +71,10 @@ public class PersonagemController {
 
     @PutMapping("{id}")
     public Personagem update(@PathVariable Long id, @RequestBody @Valid Personagem personagem) {
-        log.info("Atualizando personagem " + id + " " + personagem);
-
-        getPersonagem(id);
-        personagem.setId(id);
-        return repository.save(personagem);
+        log.info("Atualizando personagem " + id);
+        getPersonagem(id); 
+        personagem.setId(id); 
+        return repository.save(personagem); 
     }
 
     @GetMapping("/search")
