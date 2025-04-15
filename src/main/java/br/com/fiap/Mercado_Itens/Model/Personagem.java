@@ -1,14 +1,8 @@
 package br.com.fiap.Mercado_Itens.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 @Entity
 @Data
@@ -16,19 +10,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Personagem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "campo obrigatório")
+    @NotBlank(message = "Nome é obrigatório")
     private String name;
 
-    @NotBlank(message = "campo obrigatório")
-    private String characterClass;
+    @NotNull(message = "Classe é obrigatória")
+    @Enumerated(EnumType.STRING)
+    private Classe characterClass;
 
-    @NotBlank(message = "campo obrigatório")
-    private Integer level;
+    @Min(value = 1, message = "Nível mínimo é 1")
+    @Max(value = 99, message = "Nível máximo é 99")
+    private int level;
 
-    @NotBlank(message = "campo obrigatório")
-    private Integer coins;
+    @PositiveOrZero(message = "Moedas não podem ser negativas")
+    private double coins;
+
+    public enum Classe {
+        GUERREIRO, MAGO, ARQUEIRO
+    }
 }

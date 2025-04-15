@@ -1,14 +1,8 @@
 package br.com.fiap.Mercado_Itens.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 @Entity
 @Data
@@ -16,24 +10,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "campo obrigatório")
-    private String name;
+    @NotBlank(message = "Nome é obrigatório")
+    private String nome;
 
-    @NotBlank(message = "campo obrigatório")
-    private String type;
+    @NotNull(message = "Tipo é obrigatório")
+    @Enumerated(EnumType.STRING)
+    private Tipo tipo;
 
-    @NotBlank(message = "campo obrigatório")
-    private String rarity;
+    @NotNull(message = "Raridade é obrigatória")
+    @Enumerated(EnumType.STRING)
+    private Raridade raridade;
 
-    @NotBlank(message = "campo obrigatório")
-    private Integer price;
+    @Positive(message = "Preço deve ser positivo")
+    private double preco;
 
-    @NotBlank(message = "campo obrigatório")
-    private String owner;
+    @ManyToOne
+    @JoinColumn(name = "personagem_id")
+    private Personagem dono;
 
+    public enum Tipo {
+        ARMA, ARMADURA, POCAO, ACESSORIO
+    }
+
+    public enum Raridade {
+        COMUM, RARO, EPICO, LENDARIO
+    }
 }
-

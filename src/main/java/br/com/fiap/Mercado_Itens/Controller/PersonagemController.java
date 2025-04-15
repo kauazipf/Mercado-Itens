@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +15,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Pageable;
 
 import br.com.fiap.Mercado_Itens.Model.Personagem;
 import br.com.fiap.Mercado_Itens.Repository.PersonagemRepository;
+import br.com.fiap.Mercado_Itens.Specification.Specifications;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -32,12 +38,11 @@ public class PersonagemController {
     @Autowired
     private PersonagemRepository repository;
 
-    @GetMapping
+   @GetMapping
     @Cacheable("personagens")
-    @Operation(description = "Listar todos as personagens", tags = "personagens", summary = "Lista de personagens")
-    public List<Personagem> index() {
-        log.info("Buscando todos personagens");
-        return repository.findAll();
+    public Page<Personagem> index(@PageableDefault(size = 10, sort = "id", direction = Direction.ASC) Pageable pageable) {
+        log.info("Buscando todos personagens com paginação");
+        return repository.findAll(pageable);
     }
 
     @PostMapping
@@ -47,7 +52,7 @@ public class PersonagemController {
             @ApiResponse(responseCode = "400", description = "Falha na validação")
     })
     public Personagem create(@RequestBody @Valid Personagem personagem) {
-        log.info("Cadastrando personagem " + personagem.getName());
+        log.info("Cadastrando personagem " + personagem.getName() + personagem.getCharacterClass() + personagem.getLevel() + personagem.getCoins());
         return repository.save(personagem);
     }
 
@@ -71,6 +76,15 @@ public class PersonagemController {
         getPersonagem(id);
         personagem.setId(id);
         return repository.save(personagem);
+    }
+
+    @GetMapping("/search")
+    public List<Personagem> search(
+        @RequestParam(required = false) String nome,
+        @RequestParam(required = false) Personagem.Classe classe
+    ) {
+        log.info("Buscando personagens por nome: {} e classe: {}", nome, classe);
+        return repository.findAll(Specifications.comNomeOuClasse(nome, classe));
     }
 
     private Personagem getPersonagem(Long id) {
