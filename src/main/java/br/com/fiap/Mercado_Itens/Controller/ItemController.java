@@ -17,67 +17,67 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import br.com.fiap.Mercado_Itens.Model.Personagem;
-import br.com.fiap.Mercado_Itens.Repository.PersonagemRepository;
+import br.com.fiap.Mercado_Itens.Repository.ItemRepository;
+import br.com.fiap.Mercado_Itens.Model.Item;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/personagens")
+@RequestMapping("/itens")
 @Slf4j
-public class PersonagemController {
+public class ItemController {
 
     @Autowired
-    private PersonagemRepository repository;
+    private ItemRepository repository;
 
     @GetMapping
-    @Cacheable("personagens")
-    @Operation(description = "Listar todos as personagens", tags = "personagens", summary = "Lista de personagens")
-    public List<Personagem> index() {
-        log.info("Buscando todos personagens");
+    @Cacheable("item")
+    @Operation(description = "Listar todos os item disponíveis", tags = "item", summary = "Lista de item")
+    public List<Item> index() {
+        log.info("Buscando todos item");
         return repository.findAll();
     }
 
     @PostMapping
-    @CacheEvict(value = "personagens", allEntries = true)
+    @CacheEvict(value = "itens", allEntries = true)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(responses = {
             @ApiResponse(responseCode = "400", description = "Falha na validação")
     })
-    public Personagem create(@RequestBody @Valid Personagem personagem) {
-        log.info("Cadastrando personagem " + personagem.getName());
-        return repository.save(personagem);
+    public Item create(@RequestBody @Valid Item item) {
+        log.info("Cadastrando item " + item.getName() + item.getType() + item.getRarity() + item.getPrice() + item.getOwner());
+        return repository.save(item);
     }
 
     @GetMapping("{id}")
-    public Personagem get(@PathVariable Long id) {
-        log.info("Buscando personagem " + id);
-        return getPersonagem(id);
+    public Item get(@PathVariable Long id) {
+        log.info("Buscando item " + id);
+        return getItem(id);
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable Long id) {
-        log.info("Apagando personagem " + id);
-        repository.delete(getPersonagem(id));
+        log.info("Apagando item " + id);
+        repository.delete(getItem(id));
     }
 
     @PutMapping("{id}")
-    public Personagem update(@PathVariable Long id, @RequestBody @Valid Personagem personagem) {
-        log.info("Atualizando personagem " + id + " " + personagem);
+    public Item update(@PathVariable Long id, @RequestBody @Valid Item item) {
+        log.info("Atualizando item " + id + " " + item);
 
-        getPersonagem(id);
-        personagem.setId(id);
-        return repository.save(personagem);
+        getItem(id);
+        item.setId(id);
+        return repository.save(item);
     }
 
-    private Personagem getPersonagem(Long id) {
+    private Item getItem(Long id) {
         return repository.findById(id)
                 .orElseThrow(
                         () -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Personagem não encontrado"));
+                                "Item não encontrado"));
     }
 }
